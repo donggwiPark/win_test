@@ -6,6 +6,7 @@
   <title>폼 제출 예제</title>
 </head>
 <body>
+  <h1>제발 플리즈</h1>
   <form id="myForm">
     이름: <input type="text" name="name" required><br>
     이메일: <input type="email" name="email" required><br>
@@ -21,43 +22,48 @@
     document.getElementById("myForm").addEventListener("submit", function(event) {
       event.preventDefault();
       var form = event.target;
-      var data = new FormData(form);
+
+      // 데이터 수집
+      var data = {
+        name: form.querySelector('input[name="name"]').value.trim(),
+        email: form.querySelector('input[name="email"]').value.trim(),
+        phone: form.querySelector('input[name="phone"]').value.trim(),
+        consent: form.querySelector('input[name="consent"]:checked').value
+      };
 
       // 필드 검증
-      var name = form.querySelector('input[name="name"]').value.trim();
-      var email = form.querySelector('input[name="email"]').value.trim();
-      var phone = form.querySelector('input[name="phone"]').value.trim();
-      var consent = form.querySelector('input[name="consent"]:checked');
-
-      if (!name) {
+      if (!data.name) {
         alert("이름을 입력해주세요.");
         return;
       }
 
-      if (!email || !isValidEmail(email)) {
+      if (!data.email || !isValidEmail(data.email)) {
         alert("올바른 이메일 주소를 입력해주세요.");
         return;
       }
 
-      if (!phone || !isValidPhone(phone)) {
+      if (!data.phone || !isValidPhone(data.phone)) {
         alert("올바른 휴대폰 번호를 입력해주세요. (예: 010-1234-5678)");
         return;
       }
 
-      if (!consent) {
+      if (!data.consent) {
         alert("개인정보 수집에 동의 여부를 선택해주세요.");
         return;
       }
 
-      if (consent.value !== 'yes') {
+      if (data.consent !== 'yes') {
         alert("개인정보 수집에 동의해야 제출할 수 있습니다.");
         return;
       }
 
       // 데이터 전송
-      fetch("웹앱_URL", {
+      fetch("https://script.google.com/macros/s/AKfycbxBabskv6I6-3iVJ6qLU6hT_d6CzDaz1X8COaNE_VmYBZOgwh7su_ol_Og1cYj2qsLC/exec", { // 여기서 YOUR_SCRIPT_ID를 실제 웹앱 URL로 변경하세요
         method: "POST",
-        body: new URLSearchParams(data)
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
       })
       .then(response => response.json())
       .then(result => {
@@ -87,6 +93,3 @@
   </script>
 </body>
 </html>
-
-
-
