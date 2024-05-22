@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>폼 제출 예제</title>
+</head>
+<body>
+  <form id="myForm">
+    이름: <input type="text" name="name" required><br>
+    이메일: <input type="email" name="email" required><br>
+    휴대폰 번호: <input type="tel" name="phone" required pattern="[0-9]{3}-[0-9]{3,4}-[0-9]{4}" title="휴대폰 번호 형식은 000-0000-0000 입니다."><br>
+    개인정보 수집에 동의하십니까?<br>
+    <input type="radio" name="consent" value="yes" required> 예
+    <input type="radio" name="consent" value="no"> 아니오<br>
+    <button type="submit">제출</button>
+  </form>
+  <div id="result"></div>
+
+  <script>
+    document.getElementById("myForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      var form = event.target;
+      var data = new FormData(form);
+
+      // 필드 검증
+      var name = form.querySelector('input[name="name"]').value.trim();
+      var email = form.querySelector('input[name="email"]').value.trim();
+      var phone = form.querySelector('input[name="phone"]').value.trim();
+      var consent = form.querySelector('input[name="consent"]:checked');
+
+      if (!name) {
+        alert("이름을 입력해주세요.");
+        return;
+      }
+
+      if (!email || !isValidEmail(email)) {
+        alert("올바른 이메일 주소를 입력해주세요.");
+        return;
+      }
+
+      if (!phone || !isValidPhone(phone)) {
+        alert("올바른 휴대폰 번호를 입력해주세요. (예: 010-1234-5678)");
+        return;
+      }
+
+      if (!consent) {
+        alert("개인정보 수집에 동의 여부를 선택해주세요.");
+        return;
+      }
+
+      if (consent.value !== 'yes') {
+        alert("개인정보 수집에 동의해야 제출할 수 있습니다.");
+        return;
+      }
+
+      // 데이터 전송
+      fetch("웹앱_URL", {
+        method: "POST",
+        body: new URLSearchParams(data)
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.result === "success") {
+          alert("제출 성공!");
+          location.reload();  // 페이지 새로고침하여 폼 초기화
+        } else {
+          document.getElementById("result").innerText = "제출 실패!";
+        }
+      })
+      .catch(error => {
+        document.getElementById("result").innerText = "제출 실패!";
+      });
+    });
+
+    function isValidEmail(email) {
+      // 이메일 유효성 검사를 수행하는 정규식
+      var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      return emailPattern.test(email);
+    }
+
+    function isValidPhone(phone) {
+      // 휴대폰 번호 유효성 검사를 수행하는 정규식
+      var phonePattern = /^\d{3}-\d{3,4}-\d{4}$/;
+      return phonePattern.test(phone);
+    }
+  </script>
+</body>
+</html>
+
+
+
